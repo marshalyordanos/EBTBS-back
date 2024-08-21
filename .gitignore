@@ -1,0 +1,25 @@
+# Node modules
+/node_modules
+
+# Build output
+/build
+/dist
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+#
+# IDE files
+.vscode/
+.idea/
+
+# Yarn Integrity file
+.yarn-integrity
+
