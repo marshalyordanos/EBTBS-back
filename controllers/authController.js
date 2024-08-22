@@ -103,7 +103,7 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
     if (!user.isVerified)
@@ -114,7 +114,7 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "1d",
     });
     const resUser = filterObj(
       user["_doc"],
@@ -123,7 +123,9 @@ exports.login = async (req, res) => {
       "username",
       "email",
       "phone",
-      "role"
+      "role",
+      "phoneNumber",
+      "_id"
     );
 
     return res.json({ token, user: resUser });

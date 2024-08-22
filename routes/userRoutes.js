@@ -13,10 +13,10 @@ const {
 } = require("../controllers/userController");
 
 // User Routes
-router.get("/create", authMiddleware, roleMiddleware(["admin"]), createUser);
+router.post("/create", authMiddleware, roleMiddleware(["admin"]), createUser);
 router.get("/", authMiddleware, roleMiddleware(["admin"]), getUsers);
 router.get("/:id", authMiddleware, roleMiddleware(["admin"]), getUser);
-router.post("/update", authMiddleware, roleMiddleware(["admin"]), updateUser);
+router.patch("/update/:id", authMiddleware, roleMiddleware(["admin"]), updateUser);
 router.delete(
   "/delete/:id",
   authMiddleware,

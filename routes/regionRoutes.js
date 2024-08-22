@@ -15,12 +15,12 @@ const {
 } = require("../middlewares/authMiddleware");
 
 // Region Routes
-router.post("/create", authMiddleware, roleMiddleware(["admin"]), createRegion);
+router.post("/", authMiddleware, roleMiddleware(["admin"]), createRegion);
 router.get("/", authMiddleware, roleMiddleware(["admin"]), getRegions);
 router.get("/:id", authMiddleware, getRegion);
-router.post("/update", authMiddleware, roleMiddleware(["admin"]), updateRegion);
+router.patch("/:id", authMiddleware, roleMiddleware(["admin"]), updateRegion);
 router.delete(
-  "/delete/:id",
+  "/:id",
   authMiddleware,
   roleMiddleware(["admin"]),
   deleteRegion

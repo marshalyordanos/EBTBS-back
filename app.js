@@ -3,6 +3,7 @@ const connectDB = require("./config/db");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const { errHandling } = require("./utils/errorController");
+const AppErorr = require("./utils/appError")
 
 dotenv.config();
 const app = express();

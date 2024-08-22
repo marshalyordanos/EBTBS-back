@@ -1,4 +1,5 @@
 const { Region, User } = require("../models/models");
+const APIFeature = require("../utils/apiFeature");
 
 exports.createRegion = async (req, res) => {
   try {
@@ -23,7 +24,8 @@ exports.createRegion = async (req, res) => {
 
 exports.updateRegion = async (req, res) => {
   try {
-    const { id, managerId, name } = req.body;
+    const {  managerId, name } = req.body;
+    const {id} = req.params
 
     const manager = await User.findById(managerId);
     if (!manager) {
@@ -66,13 +68,24 @@ exports.getRegion = async (req, res) => {
 
 exports.getRegions = async (req, res) => {
   try {
-    const regions = await Region.find().populate("managerId");
+    if(req.query.searchText){
+      req.query.name =  { $regex: req.query.searchText, $options: "i" } 
+      }
+      const feature = new APIFeature(Region.find(), req.query)
+      .filter()
+      .sort()
+      .fields()
+      .paging();
+      const regions = await feature.query.populate("managerId");
+    const count = await Region.countDocuments({});
+      
+    // const regions = await Region.find().populate("managerId");
     if (!regions) {
       return res.status.json({ msg: "No region found" });
     }
     return res
       .status(200)
-      .json({ msg: "Region fetched successfully", data: regions });
+      .json({ msg: "Region fetched successfully", data: regions,total:count });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "Error occured" });

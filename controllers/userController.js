@@ -1,5 +1,6 @@
 const { User } = require("../models/models");
 const bcrypt = require("bcryptjs");
+const APIFeature = require("../utils/apiFeature");
 
 exports.createUser = async (req, res) => {
   try {
@@ -12,6 +13,7 @@ exports.createUser = async (req, res) => {
       phoneNumber,
       role,
     } = req.body;
+    console.log("body",req.body)
 
     // Check if user exists
     let user = await User.findOne({ email });
@@ -44,8 +46,10 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { id, username, email, firstName, lastName, phoneNumber, role } =
+    const {  username, email, firstName, lastName, phoneNumber, role } =
       req.body;
+    const { id } = req.params;
+
 
     await User.findByIdAndUpdate(id, {
       $set: {
@@ -93,10 +97,27 @@ exports.getUser = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password -__v");
+    // const users = await User.find().select("-password -__v");
+    
+
+    if (req.query.searchText) {
+      req.query = {...req.query,...{"$or":[
+        { username:  { $regex: req.query.searchText, $options: "i" } },
+        { email:  { $regex: req.query.searchText, $options: "i" } }
+      ]}};
+    }
+
+
+    const feature = new APIFeature(User.find(), req.query)
+    .filter()
+    .sort()
+    .fields()
+    .paging();
+  const users = await feature.query.select("-password -__v");
+  const count = await User.countDocuments({});
     return res
       .status(200)
-      .json({ msg: "Users fetched successfully", data: users });
+      .json({ msg: "Users fetched successfully", data: users,total:count });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "Error occured" });
