@@ -10,13 +10,21 @@ const {
   getUser,
   updateUser,
   deleteUser,
+  changePassword,
 } = require("../controllers/userController");
 
 // User Routes
 router.post("/create", authMiddleware, roleMiddleware(["admin"]), createUser);
+router.post("/change-password", authMiddleware, changePassword);
+
 router.get("/", authMiddleware, roleMiddleware(["admin"]), getUsers);
 router.get("/:id", authMiddleware, roleMiddleware(["admin"]), getUser);
-router.patch("/update/:id", authMiddleware, roleMiddleware(["admin"]), updateUser);
+router.patch(
+  "/update/:id",
+  authMiddleware,
+  roleMiddleware(["admin"]),
+  updateUser
+);
 router.delete(
   "/delete/:id",
   authMiddleware,

@@ -13,7 +13,7 @@ exports.createUser = async (req, res) => {
       phoneNumber,
       role,
     } = req.body;
-    console.log("body",req.body)
+    console.log("body", req.body);
 
     // Check if user exists
     let user = await User.findOne({ email });
@@ -46,10 +46,9 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const {  username, email, firstName, lastName, phoneNumber, role } =
+    const { username, email, firstName, lastName, phoneNumber, role } =
       req.body;
     const { id } = req.params;
-
 
     await User.findByIdAndUpdate(id, {
       $set: {
@@ -71,10 +70,20 @@ exports.updateUser = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
-    const { password, id } = req.body;
+    const { newPassword, oldPassword, id } = req.body;
+    const user = await User.findById(id).select("+password");
+
+    if (req.user._id != id) {
+      return res.status(403).json({ message: "You have not permission" });
+    }
     // Hash password
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch)
+      return res
+        .status(400)
+        .json({ message: "You are not correct the password" });
     const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
+    const passwordHash = await bcrypt.hash(newPassword, salt);
     await User.findByIdAndUpdate(id, {
       password: passwordHash,
     });
@@ -98,26 +107,29 @@ exports.getUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
   try {
     // const users = await User.find().select("-password -__v");
-    
 
     if (req.query.searchText) {
-      req.query = {...req.query,...{"$or":[
-        { username:  { $regex: req.query.searchText, $options: "i" } },
-        { email:  { $regex: req.query.searchText, $options: "i" } }
-      ]}};
+      req.query = {
+        ...req.query,
+        ...{
+          $or: [
+            { username: { $regex: req.query.searchText, $options: "i" } },
+            { email: { $regex: req.query.searchText, $options: "i" } },
+          ],
+        },
+      };
     }
 
-
     const feature = new APIFeature(User.find(), req.query)
-    .filter()
-    .sort()
-    .fields()
-    .paging();
-  const users = await feature.query.select("-password -__v");
-  const count = await User.countDocuments({});
+      .filter()
+      .sort()
+      .fields()
+      .paging();
+    const users = await feature.query.select("-password -__v");
+    const count = await User.countDocuments({});
     return res
       .status(200)
-      .json({ msg: "Users fetched successfully", data: users,total:count });
+      .json({ msg: "Users fetched successfully", data: users, total: count });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "Error occured" });
