@@ -36,7 +36,7 @@ app.use("/api/sites", siteRoutes);
 app.use("/api/protected", protectedRoutes);
 
 // indicator form routes
-app.use("/api/forms", formRoutes);
+app.use("/api/indicators", formRoutes);
 
 app.all("*", (req, res, next) => {
   return next(new AppErorr("Page is not found", 404));

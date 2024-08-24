@@ -28,7 +28,7 @@ const regionSchema = new Schema(
   {
     name: { type: String, required: true, unique: true },
     managerId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-    sites: [{ type: Schema.Types.ObjectId, required: true, ref: "Site" }],
+    
   },
   { timestamps: true }
 );
@@ -37,6 +37,8 @@ const siteSchema = new Schema(
   {
     name: { type: String, required: true, unique: true },
     coordinatorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    regionId: { type: Schema.Types.ObjectId, ref: "Region", required: true },
+
   },
   { timestamps: true }
 );

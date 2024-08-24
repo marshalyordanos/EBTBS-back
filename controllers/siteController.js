@@ -3,7 +3,7 @@ const APIFeature = require("../utils/apiFeature");
 
 exports.createSite = async (req, res) => {
   try {
-    const { name, coordinatorId } = req.body;
+    const { name, coordinatorId ,regionId} = req.body;
 
     // Check if user exists
     const coordinator = await User.findById(coordinatorId);
@@ -13,6 +13,7 @@ exports.createSite = async (req, res) => {
     const site = new Site({
       name,
       coordinatorId,
+      regionId
     });
     await site.save();
     res.status(200).json({ msg: "Site created successfully!" });
@@ -24,7 +25,7 @@ exports.createSite = async (req, res) => {
 
 exports.updateSite = async (req, res) => {
   try {
-    const {  coordinatorId, name } = req.body;
+    const {  coordinatorId, name,regionId } = req.body;
     const {id} = req.params
 
     const coordinator = await User.findById(coordinatorId);
@@ -36,6 +37,7 @@ exports.updateSite = async (req, res) => {
       $set: {
         coordinatorId,
         name,
+        regionId
       },
     });
 
@@ -80,7 +82,7 @@ exports.getSites = async (req, res) => {
     .sort()
     .fields()
     .paging();
-    const sites = await feature.query.populate("coordinatorId");
+    const sites = await feature.query.populate("coordinatorId").populate("regionId");
   const count = await Site.countDocuments({});
     
 

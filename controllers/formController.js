@@ -4,7 +4,7 @@ const { checkMonth } = require("../utils/helper");
 exports.createForm = async (req, res) => {
   try {
     const { siteId, dueDate, date } = req.body;
-    let form = await Form.find({ siteId, date });
+    // let form = await Form.find({ siteId, date });
 
     // Extract month and year from the incoming date
     const submittedDate = new Date(date);
@@ -33,7 +33,7 @@ exports.createForm = async (req, res) => {
       });
     }
 
-    form = new Form({ siteId, date, dueDate, indicators: {} });
+   const form = new Form({ siteId, date, dueDate, indicators: {} });
     await form.save();
     res.status(201).json({ msg: "Form created successfully" });
   } catch (error) {
@@ -66,9 +66,18 @@ exports.updateForm = async (req, res) => {
 // Save or update the form in increments
 exports.saveForm = async (req, res) => {
   try {
-    const { id, indicators } = req.body;
+    const {siteId, dueDate, date, indicators } = req.body;
+    const submittedDate = new Date(date);
+    const submittedMonth = submittedDate.getMonth();
+    const submittedYear = submittedDate.getFullYear();
 
-    const form = await Form.findById(id);
+    const form = await Form.findOne({
+      siteId,
+      date: {
+        $gte: new Date(submittedYear, submittedMonth, 1),
+        $lt: new Date(submittedYear, submittedMonth + 1, 1),
+      },
+    });
 
     if (!form) {
       return res.status(404).json({ msg: "form not found" });

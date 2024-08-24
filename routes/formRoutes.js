@@ -28,7 +28,7 @@ router.get(
 
 router.post("/update", updateForm);
 router.post(
-  "/create",
+  "/",
   // roleMiddleware(["admin"]),
   createForm
 );
