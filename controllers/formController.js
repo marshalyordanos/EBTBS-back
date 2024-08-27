@@ -44,8 +44,8 @@ exports.createForm = async (req, res) => {
 
 exports.updateForm = async (req, res) => {
   try {
-    const { id, form, dueDate, date, siteId, isPublished } = req.body;
-
+    const {  form, dueDate, date, siteId, isPublished } = req.body;
+const {id} = req.params
     await Form.findByIdAndUpdate(id, {
       $set: {
         form,
@@ -68,17 +68,26 @@ exports.saveForm = async (req, res) => {
   try {
     const {siteId, dueDate, date, indicators } = req.body;
     const submittedDate = new Date(date);
-    const submittedMonth = submittedDate.getMonth();
-    const submittedYear = submittedDate.getFullYear();
+    
+    const month = submittedDate.getMonth();
+    const year = submittedDate.getFullYear();
 
+    const startDate = new Date(Date.UTC(year, month , 1, 0, 0, 0)); 
+
+    // Start of the next month (1st of August, 2024 at midnight)
+    const endDate = new Date(Date.UTC(year, month+1, 1, 0, 0, 0)); 
+    console.log(submittedDate)
+    console.log(`Start Date: ${startDate.toISOString()}`);
+    console.log(`End Date: ${endDate.toISOString()}`,siteId);
+    
     const form = await Form.findOne({
-      siteId,
+      siteId:siteId,
       date: {
-        $gte: new Date(submittedYear, submittedMonth, 1),
-        $lt: new Date(submittedYear, submittedMonth + 1, 1),
+        $gte:startDate,
+        $lt: endDate,
       },
     });
-
+console.log(form)
     if (!form) {
       return res.status(404).json({ msg: "form not found" });
     }
@@ -164,7 +173,7 @@ exports.getFormById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const form = await Form.findById(id).exec();
+    const form = await Form.findById(id).populate('siteId');
 
     if (!form) {
       return res.status(404).json({ msg: "Form not found" });

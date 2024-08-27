@@ -21,12 +21,12 @@ router.get(
   getForms
 );
 router.get(
-  "/form/:id",
+  "/:id",
   //   roleMiddleware(["admin", "site_coordinator"]),
   getFormById
 );
 
-router.post("/update", updateForm);
+router.patch("/:id", updateForm);
 router.post(
   "/",
   // roleMiddleware(["admin"]),

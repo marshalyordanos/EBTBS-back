@@ -54,7 +54,7 @@ const tokenSchema = new Schema(
 
 const formSchema = new Schema(
   {
-    siteId: { type: String, required: true },
+    siteId:   { type: Schema.Types.ObjectId, ref: "Site", required: true },
     dueDate: { type: Date, required: true },
     date: { type: Date, required: true },
     isPublished: { type: Boolean, default: false },
