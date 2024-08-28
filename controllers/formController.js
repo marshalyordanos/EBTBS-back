@@ -44,11 +44,10 @@ exports.createForm = async (req, res) => {
 
 exports.updateForm = async (req, res) => {
   try {
-    const { form, dueDate, date, siteId, isPublished } = req.body;
+    const {  dueDate, date, siteId, isPublished } = req.body;
     const { id } = req.params;
     await Form.findByIdAndUpdate(id, {
       $set: {
-        form,
         dueDate,
         date,
         siteId,
