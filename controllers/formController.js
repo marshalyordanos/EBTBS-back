@@ -65,7 +65,7 @@ exports.updateForm = async (req, res) => {
 // Save or update the form in increments
 exports.saveForm = async (req, res) => {
   try {
-    const { siteId, dueDate, date, indicators } = req.body;
+    const { siteId, dueDate, date, indicators,next } = req.body;
     const submittedDate = new Date(date);
 
     const month = submittedDate.getMonth();
@@ -75,9 +75,9 @@ exports.saveForm = async (req, res) => {
 
     // Start of the next month (1st of August, 2024 at midnight)
     const endDate = new Date(Date.UTC(year, month + 1, 1, 0, 0, 0));
-    console.log(submittedDate);
-    console.log(`Start Date: ${startDate.toISOString()}`);
-    console.log(`End Date: ${endDate.toISOString()}`, siteId);
+    // console.log(submittedDate);
+    // console.log(`Start Date: ${startDate.toISOString()}`);
+    // console.log(`End Date: ${endDate.toISOString()}`, siteId);
 
     const form = await Form.findOne({
       siteId: siteId,
@@ -86,7 +86,7 @@ exports.saveForm = async (req, res) => {
         $lt: endDate,
       },
     });
-    console.log(form);
+    // console.log(form);
     if (!form) {
       return res.status(404).json({ msg: "form not found" });
     }
@@ -111,6 +111,34 @@ exports.saveForm = async (req, res) => {
     if (formattedDueDate < currentDate) {
       return res.status(500).json({ msg: "form is overdue" });
     }
+
+// validate
+  const total_work_doners =indicators.student_donors+indicators.government_employee_donors+indicators.private_employee_donors+indicators.self_employed_donors+indicators.unemployed_donors+indicators.other_donors
+
+const total_age_donors = indicators.under18_donors+indicators.age18to24_donors+indicators.age25to34_donors+indicators.age35to44_donors+indicators.age45to54_donors+indicators.age55to64_donors+indicators.over65_donors
+  console.log("next",next)
+ if(next==0){
+  if(indicators.total_blood_donations != (indicators.first_time_donors+indicators.repeat_donors)){
+    return res.status(400).json({ message: "total blood donations must be equal to the Summation of first time donors and repeat donors!" });
+  }
+  if(indicators.total_blood_donations != total_work_doners){
+    return res.status(400).json({ message: "total blood donations must be equal to the Summation of each work group donors!" });
+  }
+ }
+
+ else if(next ==1){
+  if(form.indicators.total_blood_donations != indicators.male_donors+indicators.female_donors){
+    return res.status(400).json({ message: "total blood donations must be equal to the Summation male and female donors!" });
+  }
+  if(form.indicators.total_blood_donations != total_age_donors){
+    return res.status(400).json({ message: "total blood donations must be equal to the Summation with all age group" });
+  }
+ }else if(next ==2){
+  if(form.indicators.total_blood_donations != indicators.donations_from_mobile+indicators.donations_fromCenter){
+    return res.status(400).json({ message: "total blood donations must be equal to the Summation mobile and center donors!" });
+  }
+ }
+
     // Update the form data with the new indicators
     Object.assign(form.indicators, indicators);
 
