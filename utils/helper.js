@@ -13,3 +13,14 @@ exports.checkMonth = (inputDate) => {
     console.log(error);
   }
 };
+
+exports.getDateWithDay = (dayVar) => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth(); // Months are 0-indexed
+
+  // Create a new Date object using the specified day, current month, and current year
+  const resultDate = new Date(currentYear, currentMonth, dayVar);
+
+  return resultDate;
+};

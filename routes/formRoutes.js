@@ -7,9 +7,12 @@ const {
   getForms,
   getFormById,
   getHomeDashboard,
-  getIndicatorReport
+  getIndicatorReport,
 } = require("../controllers/formController");
-const { roleMiddleware, authMiddleware } = require("../middlewares/authMiddleware");
+const {
+  roleMiddleware,
+  authMiddleware,
+} = require("../middlewares/authMiddleware");
 
 router.post(
   "/save",
@@ -23,12 +26,7 @@ router.get(
   // roleMiddleware(["admin"]),
   getHomeDashboard
 );
-router.get(
-  "/report",authMiddleware,
-  getIndicatorReport
-);
-
-
+router.get("/report", authMiddleware, getIndicatorReport);
 
 router.get(
   "/",
@@ -47,6 +45,5 @@ router.post(
   // roleMiddleware(["admin"]),
   createForm
 );
-
 
 module.exports = router;

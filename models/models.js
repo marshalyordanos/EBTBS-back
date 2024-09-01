@@ -41,6 +41,14 @@ const siteSchema = new Schema(
   { timestamps: true }
 );
 
+const settingSchema = new Schema(
+  {
+    date: { type: Number, default: null },
+      dueDate: { type: Number, default: null },
+  },
+  { timestamps: true }
+);
+
 const tokenSchema = new Schema(
   {
     userId: { type: String, required: true },
@@ -232,6 +240,8 @@ const Region = mongoose.model("Region", regionSchema);
 const Site = mongoose.model("Site", siteSchema);
 const Token = mongoose.model("Token", tokenSchema);
 const Form = mongoose.model("Form", formSchema);
+const Setting = mongoose.model("Setting", settingSchema);
+
 
 module.exports = {
   User,
@@ -239,4 +249,5 @@ module.exports = {
   Site,
   Token,
   Form,
+  Setting
 };
