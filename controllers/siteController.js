@@ -1,4 +1,4 @@
-const { Site, User } = require("../models/models");
+const { Site, User, Region } = require("../models/models");
 const APIFeature = require("../utils/apiFeature");
 
 exports.createSite = async (req, res) => {
@@ -77,14 +77,31 @@ exports.getSites = async (req, res) => {
     if(req.query.searchText){
     req.query.name =  { $regex: req.query.searchText, $options: "i" } 
     }
+    if(req.user.role=="regional_manager"){
+      r = await Region.findOne({managerId:req.user._id})
+      regionId = r._id
+      req.query.regionId = regionId
+    }
+    if(req.user.role=="site_coordiantor"){
+      req.query.coordinatorId = req.user._id
+     
+    }
     const feature = new APIFeature(Site.find(), req.query)
     .filter()
     .sort()
     .fields()
     .paging();
     const sites = await feature.query.populate("coordinatorId").populate("regionId");
-  const count = await Site.countDocuments({});
-    
+  let count = await Site.countDocuments({});
+  if(req.user.role=="regional_manager"){
+     count = await Site.countDocuments({regionId:regionId});
+
+  }
+  if(req.user.role=="site_coordiantor"){
+     count = await Site.countDocuments({coordinatorId:coordinatorId});
+
+   
+  }
 
     if (!sites) {
       return res.status(404).json({ msg: "No site found" });

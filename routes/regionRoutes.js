@@ -16,7 +16,7 @@ const {
 
 // Region Routes
 router.post("/", authMiddleware, roleMiddleware(["admin"]), createRegion);
-router.get("/", authMiddleware, roleMiddleware(["admin"]), getRegions);
+router.get("/", authMiddleware,  getRegions);
 router.get("/:id", authMiddleware, getRegion);
 router.patch("/:id", authMiddleware, roleMiddleware(["admin"]), updateRegion);
 router.delete(

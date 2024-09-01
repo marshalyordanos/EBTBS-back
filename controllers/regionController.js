@@ -71,6 +71,10 @@ exports.getRegions = async (req, res) => {
     if(req.query.searchText){
       req.query.name =  { $regex: req.query.searchText, $options: "i" } 
       }
+      if(req.user.role=="regional_manager"){
+        req.query.managerId = req.user._id
+      }
+      console.log("req.use",req.user)
       const feature = new APIFeature(Region.find(), req.query)
       .filter()
       .sort()

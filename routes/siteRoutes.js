@@ -14,14 +14,14 @@ const {
 } = require("../middlewares/authMiddleware");
 
 // Site Routes
-router.post("/", authMiddleware, roleMiddleware(["admin"]), createSite);
-router.get("/", authMiddleware, roleMiddleware(["admin"]), getSites);
+router.post("/", authMiddleware, roleMiddleware(["admin","regional_manager"]), createSite);
+router.get("/", authMiddleware, roleMiddleware(["admin","regional_manager"]), getSites);
 router.get("/:id", authMiddleware, getSite);
-router.patch("/:id", authMiddleware, roleMiddleware(["admin"]), updateSite);
+router.patch("/:id", authMiddleware, roleMiddleware(["admin","regional_manager"]), updateSite);
 router.delete(
   "/:id",
   authMiddleware,
-  roleMiddleware(["admin"]),
+  roleMiddleware(["admin","regional_manager"]),
   deleteSite
 );
 
