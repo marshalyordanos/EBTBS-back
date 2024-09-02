@@ -14,7 +14,7 @@ const {
 } = require("../controllers/userController");
 
 // User Routes
-router.post("/create", authMiddleware, roleMiddleware(["admin"]), createUser);
+router.post("/create", createUser);
 router.post("/change-password", authMiddleware, changePassword);
 
 router.get("/", authMiddleware, roleMiddleware(["admin"]), getUsers);
