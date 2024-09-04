@@ -30,6 +30,6 @@ router.delete(
   authMiddleware,
   roleMiddleware(["admin"]),
   deleteUser
-);
+);  
 
 module.exports = router;

@@ -29,7 +29,7 @@ router.get(
 router.get("/report", authMiddleware, getIndicatorReport);
 
 router.get(
-  "/",
+  "/",authMiddleware,
   //   roleMiddleware(["admin", "site_coordinator"]),
   getForms
 );

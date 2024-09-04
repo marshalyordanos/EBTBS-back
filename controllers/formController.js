@@ -120,7 +120,7 @@ exports.saveForm = async (req, res) => {
   const total_work_doners =indicators.student_donors+indicators.government_employee_donors+indicators.private_employee_donors+indicators.self_employed_donors+indicators.unemployed_donors+indicators.other_donors
 
 const total_age_donors = indicators.under18_donors+indicators.age18to24_donors+indicators.age25to34_donors+indicators.age35to44_donors+indicators.age45to54_donors+indicators.age55to64_donors+indicators.over65_donors
-  console.log("next",next)
+  // console.log("next",next)
  if(next==0){
   if(indicators.total_blood_donations != (indicators.first_time_donors+indicators.repeat_donors)){
     return res.status(400).json({ message: "total blood donations must be equal to the Summation of first time donors and repeat donors!" });
@@ -155,22 +155,39 @@ const total_age_donors = indicators.under18_donors+indicators.age18to24_donors+i
 
 exports.getForms = async (req, res) => {
   try {
-    const { siteId, month, page = 1, limit = 10 } = req.query;
+    const {  month, page = 1, limit = 10 } = req.query;
     const skip = (page - 1) * limit;
+    let siteId
 
     const query = {};
-    if (siteId) {
-      query.siteId = siteId;
+    // if (siteId) {
+    //   query.siteId = siteId;
+    // }
+
+    // if (month) {
+    //   const [year, monthIndex] = month.split("-").map(Number);
+    //   query.date = {
+    //     $gte: new Date(year, monthIndex - 1, 1),
+    //     $lt: new Date(year, monthIndex, 1),
+    //   };
+
+    // }
+    if(req.user.role=="site_coordiantor"){
+     
+      r = await Site.findOne({coordinatorId:req.user._id})
+      siteId = r._id
+      query.siteId = siteId
+    }
+    if(req.user.role == 'regional_manager'){
+      r = await Region.findOne({managerId:req.user._id})
+      const regionId = r._id
+      const sites = await Site.find({ regionId }).select('_id');
+      const siteIds = sites.map(site => site._id);
+      console.log("siteIds",siteIds)
+      query.siteId =  { $in: siteIds }
     }
 
-    if (month) {
-      const [year, monthIndex] = month.split("-").map(Number);
-      query.date = {
-        $gte: new Date(year, monthIndex - 1, 1),
-        $lt: new Date(year, monthIndex, 1),
-      };
-    }
-
+    
     const forms = await Form.find(query)
       .populate("siteId")
       .skip(skip)
@@ -220,17 +237,17 @@ exports.getIndicatorReport = async (req, res) => {
       {
         $group: {
           _id: "$siteId", // Group by siteId
-          total_blood_donations_sum: { $sum: "$indicators.total_blood_donations" },
+          total_blood_donations: { $sum: "$indicators.total_blood_donations" },
           first_time_donors: { $sum: "$indicators.first_time_donors" },
           repeat_donors: { $sum: "$indicators.repeat_donors" },
           student_donors: { $sum: "$indicators.student_donors" },
           government_employee_donors: { $sum: "$indicators.government_employee_donors" },
           private_employee_donors: { $sum: "$indicators.private_employee_donors" },
-          self_employed_donors: { $sum: "$indicators.total_blood_donations_sum" },
-          unemployed_donors: { $sum: "$indicators.total_blood_donations_sum" },
-          other_donors: { $sum: "$indicators.total_blood_donations_sum" },
-          male_donors: { $sum: "$indicators.total_blood_donations_sum" },
-          female_donors: { $sum: "$indicators.total_blood_donations_sum" },
+          self_employed_donors: { $sum: "$indicators.self_employed_donors" },
+          unemployed_donors: { $sum: "$indicators.unemployed_donors" },
+          other_donors: { $sum: "$indicators.other_donors" },
+          male_donors: { $sum: "$indicators.male_donors" },
+          female_donors: { $sum: "$indicators.female_donors" },
 
 
         },
@@ -251,7 +268,7 @@ exports.getIndicatorReport = async (req, res) => {
           _id: 0,
           siteId: '$_id',
           siteName: '$site.name',
-          total_blood_donations_sum: 1, // Include the total blood donations sum in the result
+          total_blood_donations: 1, // Include the total blood donations sum in the result
           first_time_donors: 1, // Include the total blood donations sum in the result
           repeat_donors: 1, // Include the total blood donations sum in the result
           student_donors: 1, // Include the total blood donations sum in the result
@@ -284,13 +301,14 @@ exports.getHomeDashboard = async (req, res) => {
   if(req.user.role=="site_coordiantor"){
     type="site"
     r = await Site.findOne({coordinatorId:req.user._id})
+console.log("+====================",r)
     siteId = r._id
   }
   try {
     let matchStage = {}; // No date filtering
     let groupStage = {
       _id: null,
-      total_blood_donations_sum: { $sum: "$indicators.total_blood_donations" },
+      total_blood_donations: { $sum: "$indicators.total_blood_donations" },
       first_time_donors: { $sum: "$indicators.first_time_donors" },
       repeat_donors: { $sum: "$indicators.repeat_donors" },
       student_donors: { $sum: "$indicators.student_donors" },
@@ -307,7 +325,7 @@ exports.getHomeDashboard = async (req, res) => {
     };
     let projectStage = {
       _id: 0,
-      total_blood_donations_sum: 1,
+      total_blood_donations: 1,
       first_time_donors: 1,
       repeat_donors: 1,
       student_donors: 1,
@@ -329,10 +347,11 @@ exports.getHomeDashboard = async (req, res) => {
       if (!siteId) {
         return res.status(400).json({ message: 'siteId is required for type "site"' });
       }
-      if (!siteId || !isValidObjectId(siteId)) {
-        return res.status(400).json({ message: 'Invalid siteId for type "site"' });
-      }
-      matchStage.siteId = new mongoose.Types.ObjectId(siteId);
+      console.log("siteId",siteId)
+      // if (!siteId || !isValidObjectId(siteId)) {
+      //   return res.status(400).json({ message: 'Invalid siteId for type "site"' });
+      // }
+      matchStage.siteId = siteId;
       // groupStage._id = "$siteId";
       // projectStage.siteId = "$_id";
       // projectStage.siteName = "$siteName";
