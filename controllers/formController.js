@@ -1,8 +1,11 @@
-const mongoose= require("mongoose");
+const mongoose = require("mongoose");
 const { Form, Site, Region } = require("../models/models");
 const { checkMonth } = require("../utils/helper");
 function isValidObjectId(id) {
-  return mongoose.Types.ObjectId.isValid(id) && (new mongoose.Types.ObjectId(id)).toString() === id;
+  return (
+    mongoose.Types.ObjectId.isValid(id) &&
+    new mongoose.Types.ObjectId(id).toString() === id
+  );
 }
 
 exports.createForm = async (req, res) => {
@@ -48,7 +51,7 @@ exports.createForm = async (req, res) => {
 
 exports.updateForm = async (req, res) => {
   try {
-    const {  dueDate, date, siteId, isPublished } = req.body;
+    const { dueDate, date, siteId, isPublished } = req.body;
     const { id } = req.params;
     await Form.findByIdAndUpdate(id, {
       $set: {
@@ -69,7 +72,7 @@ exports.updateForm = async (req, res) => {
 // Save or update the form in increments
 exports.saveForm = async (req, res) => {
   try {
-    const { siteId, dueDate, date, indicators,next } = req.body;
+    const { siteId, dueDate, date, indicators, next } = req.body;
     const submittedDate = new Date(date);
 
     const month = submittedDate.getMonth();
@@ -116,32 +119,77 @@ exports.saveForm = async (req, res) => {
       return res.status(500).json({ message: "form is overdue" });
     }
 
-// validate
-  const total_work_doners =indicators.student_donors+indicators.government_employee_donors+indicators.private_employee_donors+indicators.self_employed_donors+indicators.unemployed_donors+indicators.other_donors
+    // validate
+    const total_work_doners =
+      indicators.student_donors +
+      indicators.government_employee_donors +
+      indicators.private_employee_donors +
+      indicators.self_employed_donors +
+      indicators.unemployed_donors +
+      indicators.other_donors;
 
-const total_age_donors = indicators.under18_donors+indicators.age18to24_donors+indicators.age25to34_donors+indicators.age35to44_donors+indicators.age45to54_donors+indicators.age55to64_donors+indicators.over65_donors
-  // console.log("next",next)
- if(next==0){
-  if(indicators.total_blood_donations != (indicators.first_time_donors+indicators.repeat_donors)){
-    return res.status(400).json({ message: "total blood donations must be equal to the Summation of first time donors and repeat donors!" });
-  }
-  if(indicators.total_blood_donations != total_work_doners){
-    return res.status(400).json({ message: "total blood donations must be equal to the Summation of each work group donors!" });
-  }
- }
-
- else if(next ==1){
-  if(form.indicators.total_blood_donations != indicators.male_donors+indicators.female_donors){
-    return res.status(400).json({ message: "total blood donations must be equal to the Summation male and female donors!" });
-  }
-  if(form.indicators.total_blood_donations != total_age_donors){
-    return res.status(400).json({ message: "total blood donations must be equal to the Summation with all age group" });
-  }
- }else if(next ==2){
-  if(form.indicators.total_blood_donations != indicators.donations_from_mobile+indicators.donations_fromCenter){
-    return res.status(400).json({ message: "total blood donations must be equal to the Summation mobile and center donors!" });
-  }
- }
+    const total_age_donors =
+      indicators.under18_donors +
+      indicators.age18to24_donors +
+      indicators.age25to34_donors +
+      indicators.age35to44_donors +
+      indicators.age45to54_donors +
+      indicators.age55to64_donors +
+      indicators.over65_donors;
+    // console.log("next",next)
+    if (next == 0) {
+      if (
+        indicators.total_blood_donations !=
+        indicators.first_time_donors + indicators.repeat_donors
+      ) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "total blood donations must be equal to the Summation of first time donors and repeat donors!",
+          });
+      }
+      if (indicators.total_blood_donations != total_work_doners) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "total blood donations must be equal to the Summation of each work group donors!",
+          });
+      }
+    } else if (next == 1) {
+      if (
+        form.indicators.total_blood_donations !=
+        indicators.male_donors + indicators.female_donors
+      ) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "total blood donations must be equal to the Summation male and female donors!",
+          });
+      }
+      if (form.indicators.total_blood_donations != total_age_donors) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "total blood donations must be equal to the Summation with all age group",
+          });
+      }
+    } else if (next == 2) {
+      if (
+        form.indicators.total_blood_donations !=
+        indicators.donations_from_mobile + indicators.donations_fromCenter
+      ) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "total blood donations must be equal to the Summation mobile and center donors!",
+          });
+      }
+    }
 
     // Update the form data with the new indicators
     Object.assign(form.indicators, indicators);
@@ -149,15 +197,17 @@ const total_age_donors = indicators.under18_donors+indicators.age18to24_donors+i
     await form.save();
     res.status(200).json({ message: "Successfully form saved", form });
   } catch (error) {
-    res.status(500).json({ message: "Failed to save form", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to save form", error: error.message });
   }
 };
 
 exports.getForms = async (req, res) => {
   try {
-    const {  month, page = 1, limit = 10 } = req.query;
+    const { month, page = 1, limit = 10 } = req.query;
     const skip = (page - 1) * limit;
-    let siteId
+    let siteId;
 
     const query = {};
     // if (siteId) {
@@ -172,22 +222,20 @@ exports.getForms = async (req, res) => {
     //   };
 
     // }
-    if(req.user.role=="site_coordiantor"){
-     
-      r = await Site.findOne({coordinatorId:req.user._id})
-      siteId = r._id
-      query.siteId = siteId
+    if (req.user.role == "site_coordiantor") {
+      r = await Site.findOne({ coordinatorId: req.user._id });
+      siteId = r._id;
+      query.siteId = siteId;
     }
-    if(req.user.role == 'regional_manager'){
-      r = await Region.findOne({managerId:req.user._id})
-      const regionId = r._id
-      const sites = await Site.find({ regionId }).select('_id');
-      const siteIds = sites.map(site => site._id);
-      console.log("siteIds",siteIds)
-      query.siteId =  { $in: siteIds }
+    if (req.user.role == "regional_manager") {
+      r = await Region.findOne({ managerId: req.user._id });
+      const regionId = r._id;
+      const sites = await Site.find({ regionId }).select("_id");
+      const siteIds = sites.map((site) => site._id);
+      console.log("siteIds", siteIds);
+      query.siteId = { $in: siteIds };
     }
 
-    
     const forms = await Form.find(query)
       .populate("siteId")
       .skip(skip)
@@ -223,8 +271,8 @@ exports.getIndicatorReport = async (req, res) => {
 
   try {
     // Get the site IDs that belong to the specified region
-    const sites = await Site.find({ regionId }).select('_id');
-    const siteIds = sites.map(site => site._id);
+    const sites = await Site.find({ regionId }).select("_id");
+    const siteIds = sites.map((site) => site._id);
 
     // Perform the aggregation
     const result = await Form.aggregate([
@@ -241,33 +289,35 @@ exports.getIndicatorReport = async (req, res) => {
           first_time_donors: { $sum: "$indicators.first_time_donors" },
           repeat_donors: { $sum: "$indicators.repeat_donors" },
           student_donors: { $sum: "$indicators.student_donors" },
-          government_employee_donors: { $sum: "$indicators.government_employee_donors" },
-          private_employee_donors: { $sum: "$indicators.private_employee_donors" },
+          government_employee_donors: {
+            $sum: "$indicators.government_employee_donors",
+          },
+          private_employee_donors: {
+            $sum: "$indicators.private_employee_donors",
+          },
           self_employed_donors: { $sum: "$indicators.self_employed_donors" },
           unemployed_donors: { $sum: "$indicators.unemployed_donors" },
           other_donors: { $sum: "$indicators.other_donors" },
           male_donors: { $sum: "$indicators.male_donors" },
           female_donors: { $sum: "$indicators.female_donors" },
-
-
         },
       },
       {
         $lookup: {
-          from: 'sites',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'site',
+          from: "sites",
+          localField: "_id",
+          foreignField: "_id",
+          as: "site",
         },
       },
       {
-        $unwind: '$site',
+        $unwind: "$site",
       },
       {
         $project: {
           _id: 0,
-          siteId: '$_id',
-          siteName: '$site.name',
+          siteId: "$_id",
+          siteName: "$site.name",
           total_blood_donations: 1, // Include the total blood donations sum in the result
           first_time_donors: 1, // Include the total blood donations sum in the result
           repeat_donors: 1, // Include the total blood donations sum in the result
@@ -279,7 +329,6 @@ exports.getIndicatorReport = async (req, res) => {
           other_donors: 1, // Include the total blood donations sum in the result
           male_donors: 1, // Include the total blood donations sum in the result
           female_donors: 1, // Include the total blood donations sum in the result
-
         },
       },
     ]);
@@ -287,22 +336,24 @@ exports.getIndicatorReport = async (req, res) => {
     // Send the result back to the client
     res.status(200).json(result);
   } catch (error) {
-    console.error('Error in getIndicatorReport:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error in getIndicatorReport:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 exports.getHomeDashboard = async (req, res) => {
   let { regionId, siteId, type } = req.query;
-  if(req.user.role=="regional_manager"){
-    type="region"
-    r = await Region.findOne({managerId:req.user._id})
-    regionId = r._id
+  if (req.user.role == "regional_manager") {
+    type = "region";
+    const r = await Region.findOne({ managerId: req.user._id });
+    regionId = r._id;
   }
-  if(req.user.role=="site_coordiantor"){
-    type="site"
-    r = await Site.findOne({coordinatorId:req.user._id})
-console.log("+====================",r)
-    siteId = r._id
+  if (req.user.role == "site_coordiantor") {
+    type = "site";
+    console.log("+====================", req.user._id);
+
+    const r = await Site.findOne({ coordinatorId: req.user._id });
+    console.log("+====================", r);
+    siteId = r._id;
   }
   try {
     let matchStage = {}; // No date filtering
@@ -312,7 +363,9 @@ console.log("+====================",r)
       first_time_donors: { $sum: "$indicators.first_time_donors" },
       repeat_donors: { $sum: "$indicators.repeat_donors" },
       student_donors: { $sum: "$indicators.student_donors" },
-      government_employee_donors: { $sum: "$indicators.government_employee_donors" },
+      government_employee_donors: {
+        $sum: "$indicators.government_employee_donors",
+      },
       private_employee_donors: { $sum: "$indicators.private_employee_donors" },
       self_employed_donors: { $sum: "$indicators.self_employed_donors" },
       unemployed_donors: { $sum: "$indicators.unemployed_donors" },
@@ -320,8 +373,6 @@ console.log("+====================",r)
       male_donors: { $sum: "$indicators.male_donors" },
       female_donors: { $sum: "$indicators.female_donors" },
       under18_donors: { $sum: "$indicators.under18_donors" },
-
-
     };
     let projectStage = {
       _id: 0,
@@ -337,17 +388,18 @@ console.log("+====================",r)
       male_donors: 1,
       female_donors: 1,
       under18_donors: 1,
-
     };
 
     // Construct the aggregation pipeline based on the type
-    if (type === 'all') {
+    if (type === "all") {
       // No additional match or group stages needed for 'all'
-    } else if (type === 'site') {
+    } else if (type === "site") {
       if (!siteId) {
-        return res.status(400).json({ message: 'siteId is required for type "site"' });
+        return res
+          .status(400)
+          .json({ message: 'siteId is required for type "site"' });
       }
-      console.log("siteId",siteId)
+      console.log("siteId", siteId);
       // if (!siteId || !isValidObjectId(siteId)) {
       //   return res.status(400).json({ message: 'Invalid siteId for type "site"' });
       // }
@@ -355,18 +407,20 @@ console.log("+====================",r)
       // groupStage._id = "$siteId";
       // projectStage.siteId = "$_id";
       // projectStage.siteName = "$siteName";
-    } else if (type === 'region') {
+    } else if (type === "region") {
       if (!regionId) {
-        return res.status(400).json({ message: 'regionId is required for type "region"' });
+        return res
+          .status(400)
+          .json({ message: 'regionId is required for type "region"' });
       }
-      const sites = await Site.find({ regionId }).select('_id');
-      const siteIds = sites.map(site => site._id);
+      const sites = await Site.find({ regionId }).select("_id");
+      const siteIds = sites.map((site) => site._id);
       matchStage.siteId = { $in: siteIds };
       // groupStage._id = "$siteId";
       // projectStage.siteId = "$_id";
       // projectStage.siteName = "$siteName";
     } else {
-      return res.status(400).json({ message: 'Invalid type parameter' });
+      return res.status(400).json({ message: "Invalid type parameter" });
     }
 
     // Execute the aggregation pipeline
@@ -375,23 +429,23 @@ console.log("+====================",r)
       { $group: groupStage },
       {
         $lookup: {
-          from: 'sites',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'site',
+          from: "sites",
+          localField: "_id",
+          foreignField: "_id",
+          as: "site",
         },
       },
-      { $unwind: { path: '$site', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$site", preserveNullAndEmptyArrays: true } },
       { $project: projectStage },
     ]);
 
     // Send the result back to the client
     res.status(200).json(result);
   } catch (error) {
-    console.error('Error in getIndicatorReport:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error in getIndicatorReport:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
 exports.getFormById = async (req, res) => {
   try {

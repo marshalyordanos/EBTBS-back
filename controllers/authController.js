@@ -1,4 +1,4 @@
-const { User, Token } = require("../models/models");
+const { User, Token, Site, Region } = require("../models/models");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
@@ -112,6 +112,25 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
+
+    console.log("ppppppppppppp", user.role);
+    if (user.role == "regional_manager") {
+      type = "region";
+      const r = await Region.findOne({ managerId: user._id });
+      if (!r) {
+        return res.status(400).json({ message: "you have to assigned first!" });
+      }
+    }
+    if (user.role == "site_coordiantor") {
+      type = "site";
+      console.log("+====================", user._id);
+
+      const r = await Site.findOne({ coordinatorId: user._id });
+      console.log("+====================", r);
+      if (!r) {
+        return res.status(400).json({ message: "you have to assigned first!" });
+      }
+    }
 
     const token = jwt.sign({ userId: user._id }, "some_secrete", {
       expiresIn: "1d",
