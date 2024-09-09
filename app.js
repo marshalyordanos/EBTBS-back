@@ -4,8 +4,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const { errHandling } = require("./utils/errorController");
 const AppErorr = require("./utils/appError");
-const cron = require("node-cron");
-const axios = require("axios");
+
 dotenv.config();
 const app = express();
 

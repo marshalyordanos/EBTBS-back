@@ -14,7 +14,7 @@ const userSchema = new Schema(
       enum: ["admin", "site_coordiantor", "regional_manager"],
       required: true,
     },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
     verificationToken: { type: String },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
@@ -44,7 +44,7 @@ const siteSchema = new Schema(
 const settingSchema = new Schema(
   {
     date: { type: Number, default: null },
-      dueDate: { type: Number, default: null },
+    dueDate: { type: Number, default: null },
   },
   { timestamps: true }
 );
@@ -242,12 +242,11 @@ const Token = mongoose.model("Token", tokenSchema);
 const Form = mongoose.model("Form", formSchema);
 const Setting = mongoose.model("Setting", settingSchema);
 
-
 module.exports = {
   User,
   Region,
   Site,
   Token,
   Form,
-  Setting
+  Setting,
 };
