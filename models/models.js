@@ -24,6 +24,14 @@ const userSchema = new Schema(
   }
 );
 
+userSchema.pre("remove", async function (next) {
+  const user = this;
+  console.log("user",user)
+  // await Task.deleteMany({ owner: user._id });
+  // next();
+  s
+});
+
 const regionSchema = new Schema(
   {
     name: { type: String, required: true, unique: true },
