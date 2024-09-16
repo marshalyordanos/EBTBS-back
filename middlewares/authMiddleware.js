@@ -15,7 +15,7 @@ const authMiddleware = catchAsync(async (req, res, next) => {
     return next(new AppErorr("yor are not logged in", 401));
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = jwt.verify(token, "some_secrete");
   console.log("dec", decoded);
   const freshUser = await User.findOne({ _id: decoded.userId });
   if (!freshUser) {
