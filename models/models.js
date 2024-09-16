@@ -24,14 +24,17 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.pre("remove", async function (next) {
-  const user = this;
-  console.log("user",user)
-  // await Task.deleteMany({ owner: user._id });
-  // next();
-  s
-});
-
+// userSchema.pre("remove", async function (next) {
+//   const user = this;
+//   console.log("Removing user:", user);
+  
+//   try {
+//     await Task.deleteMany({ owner: user._id }); // Delete tasks related to this user
+//     next(); // Proceed to remove the user
+//   } catch (error) {
+//     next(error); // Pass error to next if something fails
+//   }
+// });
 const regionSchema = new Schema(
   {
     name: { type: String, required: true, unique: true },

@@ -51,7 +51,7 @@ exports.updateSite = async (req, res) => {
 exports.getSite = async (req, res) => {
   try {
     const { id } = req.params;
-    const site = await Site.findById(id).populate("coordinatorId");
+    const site = await Site.findById(id).populate("coordinatorId").populate("regionId");
 
     // const isAllowed =
     //   region.managerId === req.user._id || req.user.role === "admin";

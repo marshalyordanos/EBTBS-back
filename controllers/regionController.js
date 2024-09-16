@@ -1,4 +1,4 @@
-const { Region, User } = require("../models/models");
+const { Region, User, Site } = require("../models/models");
 const APIFeature = require("../utils/apiFeature");
 
 exports.createRegion = async (req, res) => {
@@ -99,6 +99,17 @@ exports.getRegions = async (req, res) => {
 exports.deleteRegion = async (req, res) => {
   try {
     const { id } = req.params;
+    const region = await Region.findById(id)
+    if(!region){
+   return res.status(404).json({ message: "Region not found" });
+
+    }
+    const site = await Site.find({regionId:region._id})
+    console.log("site: " ,site.length)
+    if(site.length>0){
+      return res.status(404).json({ message: "signed Region can be deleted !" });
+
+    }
     await Region.findByIdAndDelete(id);
     res.status(200).json({ msg: "Region deleted successfully" });
   } catch (error) {

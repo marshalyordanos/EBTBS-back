@@ -1,4 +1,4 @@
-const { User } = require("../models/models");
+const { User, Site, Region } = require("../models/models");
 const bcrypt = require("bcryptjs");
 const APIFeature = require("../utils/apiFeature");
 
@@ -37,7 +37,7 @@ exports.createUser = async (req, res) => {
     });
     await user.save();
 
-    res.status(200).json({ msg: "User created successfully!" });
+    res.status(200).json({ message: "User created successfully!" });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Server error");
@@ -61,7 +61,7 @@ exports.updateUser = async (req, res) => {
       },
     });
 
-    res.status(200).json({ msg: "User updated Successfully" });
+    res.status(200).json({ message: "User updated Successfully" });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Server error");
@@ -87,7 +87,7 @@ exports.changePassword = async (req, res) => {
     await User.findByIdAndUpdate(id, {
       password: passwordHash,
     });
-    res.status(200).json({ msg: "Password changed successfully" });
+    res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {}
 };
 
@@ -97,10 +97,10 @@ exports.getUser = async (req, res) => {
     const user = await User.findById(id);
     return res
       .status(200)
-      .json({ msg: "User fetched successfully", data: user });
+      .json({ message: "User fetched successfully", data: user });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "Error occured" });
+    res.status(500).json({ message: "Error occured" });
   }
 };
 
@@ -129,20 +129,50 @@ exports.getUsers = async (req, res) => {
     const count = await User.countDocuments({});
     return res
       .status(200)
-      .json({ msg: "Users fetched successfully", data: users, total: count });
+      .json({ message: "Users fetched successfully", data: users, total: count });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ msg: "Error occured" });
+    res.status(500).json({ message: "Error occured" });
   }
 };
 
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
+    const user = await User.findById(id)
+    if(!user){
+   return res.status(404).json({ message: "User not found" });
+
+    }
+    console.log(user.role)
+    if(user.role == "site_coordiantor"){
+      const site = await Site.find({coordinatorId:user._id})
+      console.log("site: " ,site.length)
+      if(site.length>0){
+    return res.status(404).json({ message: "signed site cordianator can be deleted!" });
+
+      }
+
+    }
+    if(user.role == "regional_manager"){
+      const region = await Region.find({managerId:user._id})
+      if(region.length>0){
+    return res.status(404).json({ message: "signed site cordianator can be deleted!" });
+
+      }
+
+    }
+    console.log(user._id.equals(req.user._id))
+    if (user._id.equals(req.user._id)){
+    return res.status(404).json({ message: "can't delete your self!" });
+
+    }
+
     await User.findByIdAndDelete(id);
-    res.status(200).json({ msg: "User deleted successfully" });
+
+    return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: "Error occured" });
+    console.log("error:  ",error);
+   return res.status(500).json({ message: "Error occured" });
   }
 };
