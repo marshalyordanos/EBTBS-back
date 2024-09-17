@@ -134,8 +134,8 @@ const formSchema = new Schema(
         default: null,
       },
       ttis_positive: { type: Number, default: null },
-      hiv_positive: { type: Number, default: null },
-      hepatitis_b_positive: { type: Number, default: null },
+      ttis_positive: { type: Number, default: null },
+      ttis_positive: { type: Number, default: null },
       hepatitis_c_positive: { type: Number, default: null },
       syphilis_positive: { type: Number, default: null },
       donors_positive_for_ttis: { type: Number, default: null },
@@ -162,6 +162,7 @@ const formSchema = new Schema(
       discarded_units_transportation_problems: { type: Number, default: null },
       discarded_units_highod: { type: Number, default: null },
       discarded_units_others: { type: Number, default: null },
+      
       requested_aplus_wb_crc: { type: Number, default: null },
       requested_bplus_wbCrc: { type: Number, default: null },
       requested_abplus_wb_crc: { type: Number, default: null },
