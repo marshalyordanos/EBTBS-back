@@ -11,7 +11,7 @@ const userSchema = new Schema(
     phoneNumber: { type: String, required: true },
     role: {
       type: String,
-      enum: ["admin", "site_coordiantor", "regional_manager"],
+      enum: ["admin", "site_coordiantor", "regional_manager,manager"],
       required: true,
     },
     isVerified: { type: Boolean, default: true },

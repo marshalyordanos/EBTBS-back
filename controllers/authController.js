@@ -8,6 +8,9 @@ const filterObj = require("../utils/pick");
 // Configure transporter
 const transporter = nodemailer.createTransport({
   service: "Gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -47,8 +50,9 @@ exports.register = async (req, res) => {
     });
 
     // Send verification email
-    const verificationLink = `${process.env.BASE_URL}/api/auth/verify-email?token=${token}`;
+    const verificationLink = `${process.env.BASE_URL}/verify-email?token=${token}`;
     await transporter.sendMail({
+      from:process.env.EMAIL_USER,
       to: email,
       subject: "Email Verification",
       html: `<p>Thank you for registering. Please verify your email by clicking the following link: <a href="${verificationLink}">${verificationLink}</a></p>`,
@@ -159,6 +163,7 @@ exports.forgotPassword = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
+    console.log("user :" , user)
     if (!user)
       return res
         .status(400)
@@ -174,7 +179,8 @@ exports.forgotPassword = async (req, res) => {
       expireAt: Date.now() + 3600000, // 1 hour expiration
     });
 
-    const resetLink = `${process.env.BASE_URL}/api/auth/reset-password?token=${token}`;
+    const resetLink = `${process.env.BASE_URL}/reset-password?token=${token}`;
+    console.log()
 
     await transporter.sendMail({
       to: email,
