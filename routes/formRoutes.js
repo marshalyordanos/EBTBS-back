@@ -8,6 +8,8 @@ const {
   getFormById,
   getHomeDashboard,
   getIndicatorReport,
+  getDonationReport,
+  getDonationReport2,
 } = require("../controllers/formController");
 const {
   roleMiddleware,
@@ -27,6 +29,8 @@ router.get(
   getHomeDashboard
 );
 router.get("/report", authMiddleware, getIndicatorReport);
+router.get("/donation", authMiddleware, getDonationReport2);
+
 
 router.get(
   "/",authMiddleware,

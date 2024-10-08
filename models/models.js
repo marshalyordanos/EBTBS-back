@@ -11,7 +11,7 @@ const userSchema = new Schema(
     phoneNumber: { type: String, required: true },
     role: {
       type: String,
-      enum: ["admin", "site_coordiantor", "regional_manager,manager"],
+      enum: ["admin", "site_coordiantor", "regional_manager","manager"],
       required: true,
     },
     isVerified: { type: Boolean, default: true },
@@ -86,6 +86,7 @@ const formSchema = new Schema(
       self_employed_donors: { type: Number, default: null },
       unemployed_donors: { type: Number, default: null },
       other_donors: { type: Number, default: null },
+
       male_donors: { type: Number, default: null },
       female_donors: { type: Number, default: null },
       under18_donors: { type: Number, default: null },
@@ -96,6 +97,7 @@ const formSchema = new Schema(
       age55to64_donors: { type: Number, default: null },
       over65_donors: { type: Number, default: null },
       apheresis_donations: { type: Number, default: null },
+
       donations_fromCenter: { type: Number, default: null },
       donations_from_mobile: { type: Number, default: null },
       mobile_sessions_conducted: { type: Number, default: null },
@@ -106,6 +108,7 @@ const formSchema = new Schema(
       adr_technical_problem: { type: Number, default: null },
       donor_refusals: { type: Number, default: null },
       other_adrs: { type: Number, default: null },
+
       permanent_deferrals_dueToTtis: { type: Number, default: null },
       deferrals_by_low_weight: { type: Number, default: null },
       deferrals_by_age: { type: Number, default: null },
@@ -116,6 +119,8 @@ const formSchema = new Schema(
       deferrals_by_high_risk_behavior: { type: Number, default: null },
       deferrals_by_travel_history: { type: Number, default: null },
       deferrals_by_other_reasons: { type: Number, default: null },
+
+
       post_donation_counselling_system: { type: Boolean, default: null },
       referral_for_positive_ttis_donors: { type: Boolean, default: null },
       pre_donation_information_given: { type: Number, default: null },
@@ -126,6 +131,8 @@ const formSchema = new Schema(
       non_reactive_donors_receiving_pdc: { type: Number, default: null },
       reactive_donors_receiving_pdc: { type: Number, default: null },
       referred_reactive_donors_receiving_pdc: { type: Number, default: null },
+
+
       donations_screened_for_ttis: { type: Number, default: null },
       samples_screened_for_ttis: { type: Number, default: null },
       samples_screened_for_blood_group: { type: Number, default: null },
@@ -134,11 +141,12 @@ const formSchema = new Schema(
         default: null,
       },
       ttis_positive: { type: Number, default: null },
-      ttis_positive: { type: Number, default: null },
-      ttis_positive: { type: Number, default: null },
+      hiv_positive: { type: Number, default: null },
+      hepatitis_b_positive: { type: Number, default: null },
       hepatitis_c_positive: { type: Number, default: null },
       syphilis_positive: { type: Number, default: null },
       donors_positive_for_ttis: { type: Number, default: null },
+
       component_processing_system: { type: Boolean, default: null },
       whole_blood_separated_into_components: { type: Number, default: null },
       crc_units_repared: { type: Number, default: null },
