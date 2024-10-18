@@ -10,6 +10,7 @@ const {
   getIndicatorReport,
   getDonationReport,
   getDonationReport2,
+  getIndicatorsReport,
 } = require("../controllers/formController");
 const {
   roleMiddleware,
@@ -30,10 +31,11 @@ router.get(
 );
 router.get("/report", authMiddleware, getIndicatorReport);
 router.get("/donation", authMiddleware, getDonationReport2);
-
+router.get("/bymonth", authMiddleware, getIndicatorsReport);
 
 router.get(
-  "/",authMiddleware,
+  "/",
+  authMiddleware,
   //   roleMiddleware(["admin", "site_coordinator"]),
   getForms
 );

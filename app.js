@@ -24,6 +24,7 @@ const settingRoutes = require("./routes/settingRoutes");
 const { Setting, Form, Site } = require("./models/models");
 const { getDateWithDay } = require("./utils/helper");
 // Connect to Database
+
 connectDB();
 
 // Middleware

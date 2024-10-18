@@ -11,7 +11,7 @@ const userSchema = new Schema(
     phoneNumber: { type: String, required: true },
     role: {
       type: String,
-      enum: ["admin", "site_coordiantor", "regional_manager","manager"],
+      enum: ["admin", "site_coordiantor", "regional_manager", "manager"],
       required: true,
     },
     isVerified: { type: Boolean, default: true },
@@ -27,7 +27,7 @@ const userSchema = new Schema(
 // userSchema.pre("remove", async function (next) {
 //   const user = this;
 //   console.log("Removing user:", user);
-  
+
 //   try {
 //     await Task.deleteMany({ owner: user._id }); // Delete tasks related to this user
 //     next(); // Proceed to remove the user
@@ -48,6 +48,7 @@ const siteSchema = new Schema(
     name: { type: String, required: true, unique: true },
     coordinatorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     regionId: { type: Schema.Types.ObjectId, ref: "Region", required: true },
+    target: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
@@ -120,7 +121,6 @@ const formSchema = new Schema(
       deferrals_by_travel_history: { type: Number, default: null },
       deferrals_by_other_reasons: { type: Number, default: null },
 
-
       post_donation_counselling_system: { type: Boolean, default: null },
       referral_for_positive_ttis_donors: { type: Boolean, default: null },
       pre_donation_information_given: { type: Number, default: null },
@@ -131,7 +131,6 @@ const formSchema = new Schema(
       non_reactive_donors_receiving_pdc: { type: Number, default: null },
       reactive_donors_receiving_pdc: { type: Number, default: null },
       referred_reactive_donors_receiving_pdc: { type: Number, default: null },
-
 
       donations_screened_for_ttis: { type: Number, default: null },
       samples_screened_for_ttis: { type: Number, default: null },
@@ -170,7 +169,7 @@ const formSchema = new Schema(
       discarded_units_transportation_problems: { type: Number, default: null },
       discarded_units_highod: { type: Number, default: null },
       discarded_units_others: { type: Number, default: null },
-      
+
       requested_aplus_wb_crc: { type: Number, default: null },
       requested_bplus_wbCrc: { type: Number, default: null },
       requested_abplus_wb_crc: { type: Number, default: null },
