@@ -76,6 +76,8 @@ const formSchema = new Schema(
     dueDate: { type: Date, required: true },
     date: { type: Date, required: true },
     isPublished: { type: Boolean, default: true },
+    active: { type: Boolean, default: false },
+
     indicators: {
       total_blood_donations: { type: Number, default: null },
       familyr_eplacement_donations: { type: Number, default: null },
