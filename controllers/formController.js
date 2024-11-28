@@ -105,9 +105,9 @@ exports.saveForm = async (req, res) => {
       });
     }
 
-    if (!form.isPublished) {
-      return res.status(400).json({ message: "Form not published yet" });
-    }
+    // if (!form.isPublished) {
+    //   return res.status(400).json({ message: "Form not published yet" });
+    // }
     const site = await Site.findById(form.siteId);
     if (!site) {
       return res.status(404).json({ message: "no site found" });

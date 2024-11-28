@@ -127,9 +127,11 @@ exports.getUsers = async (req, res) => {
       .paging();
     const users = await feature.query.select("-password -__v");
     const count = await User.countDocuments({});
-    return res
-      .status(200)
-      .json({ message: "Users fetched successfully", data: users, total: count });
+    return res.status(200).json({
+      message: "Users fetched successfully",
+      data: users,
+      total: count,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error occured" });
@@ -139,40 +141,38 @@ exports.getUsers = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id)
-    if(!user){
-   return res.status(404).json({ message: "User not found" });
-
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-    console.log(user.role)
-    if(user.role == "site_coordiantor"){
-      const site = await Site.find({coordinatorId:user._id})
-      console.log("site: " ,site.length)
-      if(site.length>0){
-    return res.status(404).json({ message: "signed site cordianator can be deleted!" });
-
+    console.log(user.role);
+    if (user.role == "site_coordiantor") {
+      const site = await Site.find({ coordinatorId: user._id });
+      console.log("site: ", site.length);
+      if (site.length > 0) {
+        return res
+          .status(404)
+          .json({ message: "signed site cordianator can be deleted!" });
       }
-
     }
-    if(user.role == "regional_manager"){
-      const region = await Region.find({managerId:user._id})
-      if(region.length>0){
-    return res.status(404).json({ message: "signed site cordianator can be deleted!" });
-
+    if (user.role == "regional_manager") {
+      const region = await Region.find({ managerId: user._id });
+      if (region.length > 0) {
+        return res
+          .status(404)
+          .json({ message: "signed site cordianator can be deleted!" });
       }
-
     }
-    console.log(user._id.equals(req.user._id))
-    if (user._id.equals(req.user._id)){
-    return res.status(404).json({ message: "can't delete your self!" });
-
+    console.log(user._id.equals(req.user._id));
+    if (user._id.equals(req.user._id)) {
+      return res.status(404).json({ message: "can't delete your self!" });
     }
 
     await User.findByIdAndDelete(id);
 
     return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
-    console.log("error:  ",error);
-   return res.status(500).json({ message: "Error occured" });
+    console.log("error:  ", error);
+    return res.status(500).json({ message: "Error occured" });
   }
 };
