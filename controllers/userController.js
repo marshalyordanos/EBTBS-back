@@ -21,8 +21,8 @@ exports.createUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    user = await User.findOne({ phoneNumber });
-    if (user) {
+    const user2 = await User.findOne({ phoneNumber });
+    if (user2) {
       return res.status(400).json({ message: "User already exists" });
     }
 
