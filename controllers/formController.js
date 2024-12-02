@@ -230,6 +230,7 @@ exports.getForms = async (req, res) => {
       .populate("siteId")
       .skip(skip)
       .limit(parseInt(limit))
+      .sort({ createdAt: -1 })
       .exec();
 
     const totalForms = await Form.countDocuments(query).exec();
