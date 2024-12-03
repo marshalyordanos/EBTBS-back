@@ -2942,7 +2942,7 @@ exports.getDonationReport = async (req, res) => {
 };
 
 exports.getHomeDashboard = async (req, res) => {
-  let { regionId, siteId, type } = req.query;
+  let { regionId, siteId, type, fromDate, toDate } = req.query;
   if (req.user.role == "regional_manager") {
     type = "region";
     const r = await Region.findOne({ managerId: req.user._id });
@@ -3497,7 +3497,12 @@ exports.getHomeDashboard = async (req, res) => {
 
     // Execute the aggregation pipeline
     const result = await Form.aggregate([
-      { $match: matchStage },
+      {
+        $match: {
+          ...matchStage,
+          date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+        },
+      },
       { $group: groupStage },
       {
         $lookup: {
