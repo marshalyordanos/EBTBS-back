@@ -10,7 +10,7 @@ function isValidObjectId(id) {
 
 exports.createForm = async (req, res) => {
   try {
-    const { siteId, dueDate, date } = req.body;
+    const { siteId, dueDate, date, submissionDate } = req.body;
     // let form = await Form.find({ siteId, date });
 
     // Extract month and year from the incoming date
@@ -40,7 +40,13 @@ exports.createForm = async (req, res) => {
       });
     }
 
-    const form = new Form({ siteId, date, dueDate, indicators: {} });
+    const form = new Form({
+      siteId,
+      date,
+      dueDate,
+      submissionDate,
+      indicators: {},
+    });
     await form.save();
     res.status(201).json({ message: "Form created successfully" });
   } catch (error) {
@@ -51,11 +57,14 @@ exports.createForm = async (req, res) => {
 
 exports.updateForm = async (req, res) => {
   try {
-    const { dueDate, date, siteId, isPublished } = req.body;
+    const { dueDate, date, submissionDate, siteId, isPublished } = req.body;
     const { id } = req.params;
+
+    console.log("submissionDate", submissionDate);
     await Form.findByIdAndUpdate(id, {
       $set: {
         dueDate,
+        submissionDate,
         date,
         siteId,
         isPublished,
@@ -104,6 +113,7 @@ exports.saveForm = async (req, res) => {
         message: "Submission month must be the same as the current month",
       });
     }
+    console.log("next", next);
 
     // if (!form.isPublished) {
     //   return res.status(400).json({ message: "Form not published yet" });
@@ -179,6 +189,28 @@ exports.saveForm = async (req, res) => {
             "total blood donations must be equal to the Summation mobile and center donors!",
         });
       }
+    } else if (next == 4) {
+      if (
+        indicators.post_donation_counselling_service !=
+        indicators.post_donation_counselling_from_mobile +
+          indicators.post_donation_counselling_from_center
+      ) {
+        return res.status(400).json({
+          message:
+            "Total number of donors receiving post-donation counselling service must be equal to the Summation mobile and center !",
+        });
+      }
+
+      if (
+        indicators.post_donation_counselling_service !=
+        indicators.non_reactive_donors_receiving_pdc +
+          indicators.reactive_donors_receiving_pdc
+      ) {
+        return res.status(400).json({
+          message:
+            "Total number of donors receiving post-donation counselling service must be equal to the Summation Non-Reactive donors and Reactive donors !",
+        });
+      }
     }
 
     // Update the form data with the new indicators
@@ -187,6 +219,7 @@ exports.saveForm = async (req, res) => {
     await form.save();
     res.status(200).json({ message: "Successfully form saved", form });
   } catch (error) {
+    console.error(error);
     res
       .status(500)
       .json({ message: "Failed to save form", error: error.message });
@@ -195,11 +228,22 @@ exports.saveForm = async (req, res) => {
 
 exports.getForms = async (req, res) => {
   try {
-    const { month, page = 1, limit = 10 } = req.query;
+    const {
+      month,
+      page = 1,
+      limit = 10,
+      fromDate,
+      toDate,
+      siteId: siteIdQuery,
+    } = req.query;
     const skip = (page - 1) * limit;
     let siteId;
 
-    const query = {};
+    const query = {
+      date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+    };
+
+    if (siteIdQuery) query.siteId = siteIdQuery;
     // if (siteId) {
     //   query.siteId = siteId;
     // }
@@ -246,6 +290,7 @@ exports.getForms = async (req, res) => {
         date: form.date,
         region: form.region,
         dueDate: form.dueDate,
+        submissionDate: form.submissionDate,
         isPublished: form.isPublished,
         indicators: form.indicators,
         __v: form.__v,
@@ -262,16 +307,21 @@ exports.getIndicatorReport = async (req, res) => {
 
   try {
     // Get the site IDs that belong to the specified region
-    const sites = await Site.find({ regionId }).select("_id");
-    const siteIds = sites.map((site) => site._id);
+    let siteIds;
+    let matchFIlter = {
+      date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+    };
+    if (regionId != "undefined") {
+      const sites = await Site.find({ regionId }).select("_id");
+      siteIds = sites.map((site) => site._id);
+      matchFIlter.siteId = { $in: siteIds };
+    }
 
+    console.log("matchfileters", matchFIlter);
     // Perform the aggregation
     const result = await Form.aggregate([
       {
-        $match: {
-          siteId: { $in: siteIds },
-          date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
-        },
+        $match: matchFIlter,
       },
       {
         $group: {
@@ -3286,26 +3336,26 @@ exports.getHomeDashboard = async (req, res) => {
       },
       other_serious_atr: { $sum: "$indicators.other_serious_atr" },
 
-      hiv_elisa_kits_stock: { $sum: "$indicators.hiv_elisa_kits_stock" },
-      hbv_elisa_kits_stock: { $sum: "$indicators.hbv_elisa_kits_stock" },
-      hcv_elisa_kits_stock: { $sum: "$indicators.hcv_elisa_kits_stock" },
-      syphilis_elisa_kits_stock: {
-        $sum: "$indicators.syphilis_elisa_kits_stock",
-      },
-      blood_bag350ml_stock: { $sum: "$indicators.blood_bag350ml_stock" },
-      blood_bag450ml_single_stock: {
-        $sum: "$indicators.blood_bag450ml_single_stock",
-      },
-      blood_bag450ml_triple_stock: {
-        $sum: "$indicators.blood_bag450ml_triple_stock",
-      },
-      transfusion_set_stock: { $sum: "$indicators.transfusion_set_stock" },
-      elisa_kits_stock_out_days: {
-        $sum: "$indicators.elisa_kits_stock_out_days",
-      },
-      blood_bag_stock_out_days: {
-        $sum: "$indicators.blood_bag_stock_out_days",
-      },
+      // hiv_elisa_kits_stock: { $sum: "$indicators.hiv_elisa_kits_stock" },
+      // hbv_elisa_kits_stock: { $sum: "$indicators.hbv_elisa_kits_stock" },
+      // hcv_elisa_kits_stock: { $sum: "$indicators.hcv_elisa_kits_stock" },
+      // syphilis_elisa_kits_stock: {
+      //   $sum: "$indicators.syphilis_elisa_kits_stock",
+      // },
+      // blood_bag350ml_stock: { $sum: "$indicators.blood_bag350ml_stock" },
+      // blood_bag450ml_single_stock: {
+      //   $sum: "$indicators.blood_bag450ml_single_stock",
+      // },
+      // blood_bag450ml_triple_stock: {
+      //   $sum: "$indicators.blood_bag450ml_triple_stock",
+      // },
+      // transfusion_set_stock: { $sum: "$indicators.transfusion_set_stock" },
+      // elisa_kits_stock_out_days: {
+      //   $sum: "$indicators.elisa_kits_stock_out_days",
+      // },
+      // blood_bag_stock_out_days: {
+      //   $sum: "$indicators.blood_bag_stock_out_days",
+      // },
     };
 
     let projectStage = {
@@ -3450,16 +3500,16 @@ exports.getHomeDashboard = async (req, res) => {
       suspected_other_parasiticinfection: 1,
       transfusion_associated_circulatory_overload: 1,
       other_serious_atr: 1,
-      hiv_elisa_kits_stock: 1,
-      hbv_elisa_kits_stock: 1,
-      hcv_elisa_kits_stock: 1,
-      syphilis_elisa_kits_stock: 1,
-      blood_bag350ml_stock: 1,
-      blood_bag450ml_single_stock: 1,
-      blood_bag450ml_triple_stock: 1,
-      transfusion_set_stock: 1,
-      elisa_kits_stock_out_days: 1,
-      blood_bag_stock_out_days: 1,
+      // hiv_elisa_kits_stock: 1,
+      // hbv_elisa_kits_stock: 1,
+      // hcv_elisa_kits_stock: 1,
+      // syphilis_elisa_kits_stock: 1,
+      // blood_bag350ml_stock: 1,
+      // blood_bag450ml_single_stock: 1,
+      // blood_bag450ml_triple_stock: 1,
+      // transfusion_set_stock: 1,
+      // elisa_kits_stock_out_days: 1,
+      // blood_bag_stock_out_days: 1,
     };
 
     // Construct the aggregation pipeline based on the type

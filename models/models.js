@@ -75,7 +75,9 @@ const formSchema = new Schema(
     siteId: { type: Schema.Types.ObjectId, ref: "Site", required: true },
     dueDate: { type: Date, required: true },
     date: { type: Date, required: true },
-    isPublished: { type: Boolean, default: true },
+    submissionDate: { type: Date },
+
+    isPublished: { type: Boolean, default: false },
     active: { type: Boolean, default: false },
 
     indicators: {

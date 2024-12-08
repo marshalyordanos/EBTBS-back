@@ -131,9 +131,15 @@ exports.getUsers = async (req, res) => {
       .fields()
       .paging();
     const users = await feature.query.select("-password -__v");
-    const count = await User.countDocuments({});
+    let count;
+
+    if (req.query.role) {
+      count = await User.countDocuments({ role: req.query.role });
+    } else {
+      count = await User.countDocuments({});
+    }
     return res.status(200).json({
-      message: "Users fetched successfully",
+      message: "Users fetched successfully2222",
       data: users,
       total: count,
     });
