@@ -3009,7 +3009,7 @@ exports.getHomeDashboard = async (req, res) => {
     siteId = r._id;
   }
   try {
-    let matchStage = {}; // No date filtering
+    let matchStage = { isPublished: true }; // No date filtering
     let groupStage = {
       _id: null,
       total_blood_donations: { $sum: "$indicators.total_blood_donations" },
