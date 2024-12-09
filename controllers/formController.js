@@ -190,26 +190,28 @@ exports.saveForm = async (req, res) => {
         });
       }
     } else if (next == 4) {
-      if (
-        indicators.post_donation_counselling_service !=
-        indicators.post_donation_counselling_from_mobile +
-          indicators.post_donation_counselling_from_center
-      ) {
-        return res.status(400).json({
-          message:
-            "Total number of donors receiving post-donation counselling service must be equal to the Summation mobile and center !",
-        });
-      }
+      if (indicators.post_donation_counselling_service) {
+        if (
+          indicators.post_donation_counselling_service !=
+          indicators.post_donation_counselling_from_mobile +
+            indicators.post_donation_counselling_from_center
+        ) {
+          return res.status(400).json({
+            message:
+              "Total number of donors receiving post-donation counselling service must be equal to the Summation mobile and center !",
+          });
+        }
 
-      if (
-        indicators.post_donation_counselling_service !=
-        indicators.non_reactive_donors_receiving_pdc +
-          indicators.reactive_donors_receiving_pdc
-      ) {
-        return res.status(400).json({
-          message:
-            "Total number of donors receiving post-donation counselling service must be equal to the Summation Non-Reactive donors and Reactive donors !",
-        });
+        if (
+          indicators.post_donation_counselling_service !=
+          indicators.non_reactive_donors_receiving_pdc +
+            indicators.reactive_donors_receiving_pdc
+        ) {
+          return res.status(400).json({
+            message:
+              "Total number of donors receiving post-donation counselling service must be equal to the Summation Non-Reactive donors and Reactive donors !",
+          });
+        }
       }
     }
 
