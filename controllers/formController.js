@@ -311,6 +311,7 @@ exports.getIndicatorReport = async (req, res) => {
     // Get the site IDs that belong to the specified region
     let siteIds;
     let matchFIlter = {
+      isPublished: true,
       date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
     };
     if (regionId != "undefined") {
@@ -881,6 +882,8 @@ exports.getIndicatorsReport = async (req, res) => {
     const results = await Form.aggregate([
       {
         $match: {
+          isPublished: true,
+
           date: {
             $gte: startDate,
             $lt: endDate,
@@ -2262,6 +2265,8 @@ exports.getDonationReport2 = async (req, res) => {
     const result = await Form.aggregate([
       {
         $match: {
+          isPublished: true,
+
           date: { $gte: new Date(fromDate), $lte: new Date(toDate) },
         },
       },
