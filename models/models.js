@@ -15,6 +15,7 @@ const userSchema = new Schema(
       required: true,
     },
     isVerified: { type: Boolean, default: true },
+    isActive: { type: String, default: "yes" },
     verificationToken: { type: String },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
@@ -66,6 +67,14 @@ const tokenSchema = new Schema(
     userId: { type: String, required: true },
     token: { type: String, required: true },
     expireAt: { type: Date, expires: 60 * 60, default: Date.now },
+  },
+  { timestamps: true }
+);
+
+const targetSchema = new Schema(
+  {
+    date: { type: Date },
+    token: { type: String, required: true },
   },
   { timestamps: true }
 );

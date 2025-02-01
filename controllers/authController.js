@@ -52,7 +52,7 @@ exports.register = async (req, res) => {
     // Send verification email
     const verificationLink = `${process.env.BASE_URL}/verify-email?token=${token}`;
     await transporter.sendMail({
-      from:process.env.EMAIL_USER,
+      from: process.env.EMAIL_USER,
       to: email,
       subject: "Email Verification",
       html: `<p>Thank you for registering. Please verify your email by clicking the following link: <a href="${verificationLink}">${verificationLink}</a></p>`,
@@ -110,8 +110,8 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email }).select("+password");
     if (!user) return res.status(400).json({ message: "Invalid credentials" });
 
-    if (!user.isVerified)
-      return res.status(400).json({ message: "Email not verified" });
+    if (user.isActive == "no")
+      return res.status(400).json({ message: "You can not loggin!" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
@@ -163,14 +163,14 @@ exports.forgotPassword = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    console.log("user :" , user)
+    console.log("user :", user);
     if (!user)
       return res
         .status(400)
         .json({ message: "User with this email does not exist" });
 
-    if (!user.isVerified)
-      return res.status(400).json({ message: "Email not verified" });
+    // if (!user.isVerified)
+    //   return res.status(400).json({ message: "Email not verified" });
 
     const token = crypto.randomBytes(32).toString("hex");
     await Token.create({
@@ -180,7 +180,7 @@ exports.forgotPassword = async (req, res) => {
     });
 
     const resetLink = `${process.env.BASE_URL}/reset-password?token=${token}`;
-    console.log()
+    console.log();
 
     await transporter.sendMail({
       to: email,

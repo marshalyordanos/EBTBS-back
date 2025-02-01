@@ -51,18 +51,59 @@ exports.createUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { username, email, firstName, lastName, phoneNumber, role } =
-      req.body;
+    const {
+      username,
+      email,
+      firstName,
+      lastName,
+      phoneNumber,
+      role,
+      password,
+      isVerified,
+    } = req.body;
     const { id } = req.params;
 
     await User.findByIdAndUpdate(id, {
       $set: {
         username,
         email,
+        isVerified: isVerified,
         firstName,
         lastName,
         phoneNumber,
         role,
+      },
+    });
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(password, salt);
+      await User.findByIdAndUpdate(id, {
+        $set: {
+          password: passwordHash,
+        },
+      });
+    }
+
+    res.status(200).json({ message: "User updated Successfully" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server error");
+  }
+};
+
+exports.deleteUser2 = async (req, res) => {
+  try {
+    const { isActive } = req.body;
+    const { id } = req.params;
+    const user = await User.findById(id);
+    const x = user.isActive == "no" ? "yes" : "no";
+
+    console.log("========---00::", x);
+
+    await User.findByIdAndUpdate(id, {
+      $set: {
+        isActive: x,
       },
     });
 
@@ -72,7 +113,6 @@ exports.updateUser = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
-
 exports.changePassword = async (req, res) => {
   try {
     const { newPassword, oldPassword, id } = req.body;
@@ -96,6 +136,18 @@ exports.changePassword = async (req, res) => {
   } catch (error) {}
 };
 
+exports.ResetPassword = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash("12345678", salt);
+    await User.findByIdAndUpdate(id, {
+      password: passwordHash,
+    });
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {}
+};
 exports.getUser = async (req, res) => {
   try {
     const { id } = req.params;
